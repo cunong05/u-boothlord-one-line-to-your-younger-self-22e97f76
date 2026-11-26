@@ -1,27 +1,28 @@
-#!/usr/bin/env python3
-"""One Line to Your Younger Self — make.fun bounty entry.
+"""A tiny helper that saves a short note to my younger self.
 
-Writes one line to your younger self to /output/entry.txt (outDir is the literal "/output", per the kit).
+Running this script produces a single-line text file holding one
+sentence I wish I had heard earlier. Nothing is fetched, nothing is
+sent anywhere; the program only writes a local file.
 """
 
-import os
-
-# Written from the future, with love.
-ENTRY = "Dear younger me: stop apologizing for taking up space. The rooms that want you small were never built for you anyway."
-
-OUT_DIR = "/output"
-OUT_PATH = os.path.join(OUT_DIR, "entry.txt")
+from pathlib import Path
 
 
 def main() -> None:
-    entry = ENTRY.strip()
-    assert entry, "entry must not be empty"
-    assert "\n" not in entry, "entry must be a single line"
-    assert 1 <= len(entry) <= 200, f"entry must be 1-200 chars, got {len(entry)}"
-    os.makedirs(OUT_DIR, exist_ok=True)
-    with open(OUT_PATH, "w", encoding="utf-8") as f:
-        f.write(entry)
-    print(f"Wrote {len(entry)} characters to {OUT_PATH}")
+    # One sentence, kept short enough to fit the bounty limit.
+    message = "Dear younger me: stop apologizing for taking up space. The rooms that want you small were never built for you anyway."
+
+    if not message:
+        raise SystemExit("Entry is empty, so nothing was written.")
+    if "\n" in message or "\r" in message:
+        raise SystemExit("Entry must stay on a single line.")
+    if not 1 <= len(message) <= 200:
+        raise SystemExit("Entry must be between 1 and 200 characters long.")
+
+    target = Path("/output/entry.txt")
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_text(message + "\n", encoding="utf-8")
+    print(f"Wrote {len(message)} characters to {target}")
 
 
 if __name__ == "__main__":
